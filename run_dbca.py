@@ -36,6 +36,7 @@ from dbca.config import DBCASplitterConfig, setup_logger
 from dbca.dbca_splitter import DBCASplitter
 from dbca.dbca_splitter_ray import DBCASplitterRay
 from dbca.datasets.relational.utils import get_samples
+from dbca.datasets.math_eqn.build_samples import build_samples
 
 logger = logging.getLogger(__name__)
 
@@ -48,8 +49,8 @@ if __name__ == '__main__':
     logger.info(f"Creating {config.pool_size} samples...")
 
     # toy sample source
-    samples = get_samples(num_samples=config.pool_size, seed=1234, num_entities=10, fixed_scale=False)
-
+    #samples = get_samples(num_samples=config.pool_size, seed=1234, num_entities=10, fixed_scale=False)
+    samples = build_samples("eqn.data", logger)
 
     if config.num_processes > 1:
         dbca_splitter = DBCASplitterRay(samples, config)
