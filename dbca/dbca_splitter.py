@@ -314,6 +314,23 @@ class DBCASplitter:
         config_path = save_dir / 'config.json'
         config_path.write_text(self.config.to_json())
     
+    def save_samples(self, path: Path):
+        """
+        Save actual splits to `save_path`.
+        """
+        train_samples = ""
+        test_samples = ""
+        for s_id, split in self.sample_splits.items():
+            if split:
+                if split.value == "train":
+                    train_samples += self.sample_store._samples[s_id]._name
+                elif split.value == "test":
+                    test_samples += self.sample_store._samples[s_id]._name 
+                else:
+                    assert False
+        json.dump(train_samples, (path.parent / (path.name + '-train.json')).open(mode="w"))
+        json.dump(test_samples, (path.parent / (path.name + '-test.json')).open(mode="w"))
+
     def save_splits(self, save_path: Path):
         """ 
         Save split information to `save_path`.
@@ -343,6 +360,7 @@ class DBCASplitter:
             
         self.logger.info(f"Saving to {self.config.save_dir}...")
         self.save_splits(Path(self.config.save_dir) / "data.json")
+        self.save_samples(Path(self.config.save_dir) / "samples")
     
     def generate_splits(self) -> Tuple[SplitSampleSet, SplitSampleSet]:
         """

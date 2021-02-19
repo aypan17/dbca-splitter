@@ -19,7 +19,7 @@ COUNTER = {'<s>': 0, '</s>': 0, '<pad>': 0, '(': 0, ')': 0, '<SPECIAL_5>': 0, '<
 
 
 # Given a list of tokens in prefix form, convert to a list of NetworkX graphs.
-def prefix_to_tree(token_list):
+def prefix_to_tree(token_list, eqn):
     samples = []
     num_extra_tokens = []
     for i in range(len(token_list)):
@@ -27,7 +27,7 @@ def prefix_to_tree(token_list):
         counter = dict(COUNTER)
         _, idx = _prefix_to_tree(token_list[i], counter, tree)
         assert idx == len(token_list[i])
-        samples.append(EquationSample(tree, f's_{i}'))
+        samples.append(EquationSample(tree, eqn[i]))
     return samples
 
 def _prefix_to_tree(tokens, counter, tree, idx=0):
@@ -89,8 +89,9 @@ def build_samples(path, logger):
     assert os.path.isfile(path)
     logger.info(f"Loading data from {path} ...")
     with io.open(path, mode='r', encoding='utf-8') as f:
-        lines = [line.rstrip().split('|') for line in f]
-    data = [xy.split('\t') for _, xy in lines]
+        lines = [line for line in f]
+    cleaned = [line.rstrip().split('|') for line in lines]
+    data = [xy.split('\t') for _, xy in cleaned]
     data = [xy[0].split()[2:] for xy in data if len(xy) == 2]
     logger.info(f"Loaded {len(data)} equations from the disk.")
-    return prefix_to_tree(data)
+    return prefix_to_tree(data, lines)
